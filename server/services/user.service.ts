@@ -12,13 +12,13 @@ export const saveUser = async (user: User): Promise<UserResponse> => {
   // This function should save the user to the database and return the saved user object without the password.
   try {
     const savedUser = await UserModel.create(user);
-    const { password, ...safeUser } = savedUser.toObject();
+    const { password: _, ...safeUser } = savedUser.toObject();
     return safeUser as UserResponse;
   } catch (error) {
-    return { error: 'Error saving user'};
+    return { error: 'Error saving user' };
   }
-}
-  // ({ error: 'Not implemented' });
+};
+// ({ error: 'Not implemented' });
 
 /**
  * Retrieves a user from the database by their username.
@@ -30,16 +30,16 @@ export const getUserByUsername = async (username: string): Promise<UserResponse>
   // TODO: Task 1 - Implement the getUserByUsername function. Refer to other service files for guidance.
   try {
     const user = await UserModel.findOne({ username }).exec();
-    if(!user) {
-      return {error: 'User not found'};
+    if (!user) {
+      return { error: 'User not found' };
     }
-    const { password, ...safeUser } = user.toObject();
+    const { password: hidden, ...safeUser } = user.toObject();
     return safeUser as UserResponse;
   } catch (error) {
-    return { error: 'Error fetching user data'};
+    return { error: 'Error fetching user data' };
   }
-}
-  // ({ error: 'Not implemented' });
+};
+// ({ error: 'Not implemented' });
 
 /**
  * Authenticates a user by verifying their username and password.
@@ -54,14 +54,13 @@ export const loginUser = async (loginCredentials: UserCredentials): Promise<User
     if (!user) {
       return { error: 'Invalid credentials / user not found' };
     }
-    const { password, ...safeUser} = user.toObject();
+    const { password: _password, ...safeUser } = user.toObject();
     return safeUser as UserResponse;
   } catch (error) {
     return { error: 'Error logging in user' };
   }
-  
-}
-  // ({ error: 'Not implemented' });
+};
+// ({ error: 'Not implemented' });
 
 /**
  * Deletes a user from the database by their username.
@@ -73,7 +72,7 @@ export const deleteUserByUsername = async (username: string): Promise<UserRespon
   // TODO: Task 1 - Implement the deleteUserByUsername function. Refer to other service files for guidance.
   try {
     const deletedUser = await UserModel.findOneAndDelete({ username }).exec();
-    if(!deletedUser) {
+    if (!deletedUser) {
       return { error: 'User not found' };
     }
     const { password, ...safeUser } = deletedUser.toObject();
@@ -81,8 +80,8 @@ export const deleteUserByUsername = async (username: string): Promise<UserRespon
   } catch (error) {
     return { error: 'Error deleting user' };
   }
-}
-  // ({ error: 'Not implemented' });
+};
+// ({ error: 'Not implemented' });
 
 /**
  * Updates user information in the database.
@@ -91,15 +90,17 @@ export const deleteUserByUsername = async (username: string): Promise<UserRespon
  * @param {Partial<User>} updates - An object containing the fields to update and their new values.
  * @returns {Promise<UserResponse>} - Resolves with the updated user object (without the password) or an error message.
  */
-export const updateUser = async (username: string, updates: Partial<User>): Promise<UserResponse> => {
+export const updateUser = async (
+  username: string,
+  updates: Partial<User>,
+): Promise<UserResponse> => {
   // TODO: Task 1 - Implement the updateUser function. Refer to other service files for guidance.
   try {
-    const updatedUser = await UserModel.findOneAndUpdate(
-      { username },
-      updates,
-      { new: true, runValidators: true } 
-    ).exec();
-    if(!updatedUser) {
+    const updatedUser = await UserModel.findOneAndUpdate({ username }, updates, {
+      new: true,
+      runValidators: true,
+    }).exec();
+    if (!updatedUser) {
       return { error: 'User not found' };
     }
     const { password, ...safeUser } = updatedUser.toObject();
@@ -107,5 +108,5 @@ export const updateUser = async (username: string, updates: Partial<User>): Prom
   } catch (error) {
     return { error: 'Error updating user' };
   }
-}
-  // ({ error: 'Not implemented' });
+};
+// ({ error: 'Not implemented' });

@@ -24,7 +24,7 @@ const messageSchema: Schema = new Schema(
       type: Date,
       default: Date.now,
       required: true,
-    }
+    },
   },
   { collection: 'Message' },
 );

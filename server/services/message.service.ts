@@ -17,7 +17,7 @@ export const saveMessage = async (message: Message): Promise<MessageResponse> =>
     return { error: 'Error saving message' };
   }
 };
-  // ({ error: 'Not implemented' });
+// ({ error: 'Not implemented' });
 
 /**
  * Retrieves all messages from the database, sorted by date in ascending order.
@@ -25,11 +25,11 @@ export const saveMessage = async (message: Message): Promise<MessageResponse> =>
  * @returns {Promise<Message[]>} - An array of messages. If an error occurs, an empty array is returned.
  */
 export const getMessages = async (): Promise<Message[]> => {
-// TODO: Task 2 - Implement the getMessages function
+  // TODO: Task 2 - Implement the getMessages function
   try {
     const messages = await MessageModel.find().sort({ msgDateTime: 1 }).exec();
     return messages;
-  } catch(error) {
+  } catch (error) {
     return [];
   }
 };

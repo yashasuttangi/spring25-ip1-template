@@ -5,17 +5,6 @@ import { saveMessage, getMessages } from '../services/message.service';
 
 const messageController = (socket: FakeSOSocket) => {
   const router = express.Router();
-
-  /**
-   * Checks if the provided message request contains the required fields.
-   *
-   * @param req The request object containing the message data.
-   *
-   * @returns `true` if the request is valid, otherwise `false`.
-   */
-  const isRequestValid = (req: AddMessageRequest): boolean => {
-    return req.body && req.body.messageToAdd && isMessageValid(req.body.messageToAdd);
-  };
   // TODO: Task 2 - Implement the isRequestValid function
 
   /**
@@ -25,16 +14,25 @@ const messageController = (socket: FakeSOSocket) => {
    *
    * @returns `true` if the message is valid, otherwise `false`.
    */
-  const isMessageValid = (message: Message): boolean => {
-  // TODO: Task 2 - Implement the isMessageValid function
-    return (
-      message &&
-      typeof message.msg === 'string' && message.msg.trim() !== '' &&
-      typeof message.msgFrom === 'string' && message.msgFrom.trim() !== '' &&
-      message.msgDateTime instanceof Date && !isNaN(message.msgDateTime.getTime())
-    )
-  };
-
+  const isMessageValid = (message: Message): boolean =>
+    // TODO: Task 2 - Implement the isMessageValid function
+    message &&
+    typeof message.msg === 'string' &&
+    message.msg.trim() !== '' &&
+    typeof message.msgFrom === 'string' &&
+    message.msgFrom.trim() !== '' &&
+    message.msgDateTime instanceof Date &&
+    !Number.isNaN(message.msgDateTime.getTime());
+  // Moving this block below as isMessageValid was being used before defined - to resolve the lint error
+  /**
+   * Checks if the provided message request contains the required fields.
+   *
+   * @param req The request object containing the message data.
+   *
+   * @returns `true` if the request is valid, otherwise `false`.
+   */
+  const isRequestValid = (req: AddMessageRequest): boolean =>
+    req.body && req.body.messageToAdd && isMessageValid(req.body.messageToAdd);
   /**
    * Handles adding a new message. The message is first validated and then saved.
    * If the message is invalid or saving fails, the HTTP response status is updated.
@@ -50,7 +48,7 @@ const messageController = (socket: FakeSOSocket) => {
      * Note: you will need to uncomment the line below. Refer to other controller files for guidance.
      * This emits a message update event to the client. When should you emit this event? You can find the socket event definition in the server/types/socket.d.ts file.
      */
-    if(!isRequestValid(req)) {
+    if (!isRequestValid(req)) {
       res.status(400).send('Invalid message data');
       return;
     }
@@ -59,7 +57,7 @@ const messageController = (socket: FakeSOSocket) => {
     try {
       const msgFromDb: MessageResponse = await saveMessage(messageToSave);
 
-      if('error' in msgFromDb) {
+      if ('error' in msgFromDb) {
         res.status(500).send(msgFromDb.error);
         return;
       }

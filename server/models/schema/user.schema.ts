@@ -15,7 +15,7 @@ const userSchema: Schema = new Schema(
     username: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
     },
     password: {
       type: String,
@@ -23,7 +23,7 @@ const userSchema: Schema = new Schema(
     },
     dateJoined: {
       type: Date,
-      default: Date.now
+      default: Date.now,
     },
   },
   { collection: 'User' },

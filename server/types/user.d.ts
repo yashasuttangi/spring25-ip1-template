@@ -47,7 +47,7 @@ export interface UserByUsernameRequest extends Request {
   body: UserCredentials;
   params: {
     username: string;
-  }
+  };
 }
 
 /**

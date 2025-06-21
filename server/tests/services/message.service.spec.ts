@@ -52,12 +52,12 @@ describe('Message model', () => {
       expect(messages).toMatchObject([message1, message2]);
     });
     // TODO: Task 2 - Write a test case for getMessages when an error occurs
-    it('should return an empty array if fetching message fails'), async () => {
+    it('should return an empty array if fetching message fails', async () => {
       mockingoose(MessageModel).toReturn(new Error('Database error'), 'find');
 
       const messages = await getMessages();
 
       expect(messages).toEqual([]);
-    }
+    });
   });
 });

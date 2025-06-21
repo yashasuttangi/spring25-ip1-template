@@ -21,8 +21,10 @@ const userController = () => {
 
     // Check if username and password are provided and are non-empty strings
     return (
-      typeof username === 'string' && username.trim().length > 0 &&
-      typeof password === 'string' && password.trim().length > 0
+      typeof username === 'string' &&
+      username.trim().length > 0 &&
+      typeof password === 'string' &&
+      password.trim().length > 0
     );
   };
   // TODO: Task 1 - Implement the isUserBodyValid function
@@ -36,31 +38,31 @@ const userController = () => {
   const createUser = async (req: UserRequest, res: Response): Promise<void> => {
     // TODO: Task 1 - Implement the createUser function
     if (!isUserBodyValid(req)) {
-      res.status(400).send("Invalid User Data");
+      res.status(400).send('Invalid user body');
       return;
-    } 
+    }
     const { username, password } = req.body;
 
     const newUserData: User = {
       username: username.trim(),
-      password: password,
+      password,
       dateJoined: new Date(),
     };
 
     try {
       const existingUser = await getUserByUsername(newUserData.username);
 
-      if(!('error' in existingUser)) {
+      if (!('error' in existingUser)) {
         res.status(409).send('User already exists');
         return;
       }
 
       const createdUser = await saveUser(newUserData);
-      if('error' in createdUser) {
+      if ('error' in createdUser) {
         res.status(500).send(createdUser.error);
         return;
       }
-      
+
       res.status(201).send(createdUser);
     } catch (error) {
       res.status(500).send('Error creating user');
@@ -77,15 +79,16 @@ const userController = () => {
   const userLogin = async (req: UserRequest, res: Response): Promise<void> => {
     // TODO: Task 1 - Implement the userLogin function
     if (!isUserBodyValid(req)) {
-      res.status(400).send('Invalid User Data');
+      res.status(400).send('Invalid user body');
       return;
+    }
+
+    const credentials: UserCredentials = {
+      username: req.body.username.trim(),
+      password: req.body.password,
     };
-
-    const username = req.body.username.trim();
-    const password = req.body.password;
-
     try {
-      const user = await loginUser({ username, password });
+      const user = await loginUser(credentials);
       if ('error' in user) {
         res.status(401).send(user.error);
         return;
@@ -107,14 +110,14 @@ const userController = () => {
     // TODO: Task 1 - Implement the getUser function
     const username = req.params.username?.trim();
 
-    if(typeof username !== 'string' || username.trim().length === 0) {
+    if (typeof username !== 'string' || username.trim().length === 0) {
       res.status(400).send('Username is required');
       return;
     }
 
     try {
       const user = await getUserByUsername(username);
-      if('error' in user) {
+      if ('error' in user) {
         res.status(404).send(user.error);
         return;
       }
@@ -135,14 +138,14 @@ const userController = () => {
     // TODO: Task 1 - Implement the deleteUser function
     const username = req.params.username?.trim();
 
-    if(!username || username.trim().length === 0) {
+    if (!username || username.trim().length === 0) {
       res.status(400).send('Username is required');
       return;
     }
 
     try {
       const deletedUser = await deleteUserByUsername(username);
-      if('error' in deletedUser) {
+      if ('error' in deletedUser) {
         res.status(404).send(deletedUser.error);
         return;
       }
@@ -164,14 +167,14 @@ const userController = () => {
     const username = req.params.username?.trim();
     const newPassword = req.body?.password;
 
-    if(!username || !newPassword || username.length === 0 || newPassword.trim().length === 0) {
+    if (!username || !newPassword || username.length === 0 || newPassword.trim().length === 0) {
       res.status(400).send('Username and password are required');
       return;
     }
 
     try {
       const updatedUser = await updateUser(username, { password: newPassword });
-      if('error' in updatedUser) {
+      if ('error' in updatedUser) {
         res.status(404).send(updatedUser.error);
         return;
       }
@@ -185,6 +188,11 @@ const userController = () => {
 
   // Define routes for the user-related operations.
   // TODO: Task 1 - Add appropriate HTTP verbs and endpoints to the router
+  router.post('/signup', createUser);
+  router.post('/login', userLogin);
+  router.get('/getUser/:username', getUser);
+  router.delete('/deleteUser/:username', deleteUser);
+  router.patch('/resetPassword', resetPassword);
 
   return router;
 };
