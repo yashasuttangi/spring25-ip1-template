@@ -39,6 +39,21 @@ describe('POST /addMessage', () => {
   });
 
   // TODO: Task 2 - Write additional test cases for addMessageRoute
+  it('should return 400 if message fields are missing', async() => {
+    const response = await supertest(app).post('/messaging/addMessage').send({ messagetoAdd: { msg: '', msgFrom: 'User1' } });
+
+    expect(response.status).toBe(400);
+    expect(response.text).toBe('Invalid request');
+  });
+
+  it('should return 500 if saving message fails', async() => {
+    saveMessageSpy.mockResolvedValue({ error: 'Error saving message' });
+
+    const response = await supertest(app).post('/messaging/addMessage').send({ messageToAdd: { msg: 'Hello', msgFrom: 'User1', msgDateTime: new Date() } });
+
+    expect(response.status).toBe(500);
+    expect(response.text).toBe('Error saving message');
+  });
 });
 
 describe('GET /getMessages', () => {
