@@ -10,14 +10,6 @@ import { User, UserCredentials, UserResponse } from '../types/types';
 export const saveUser = async (user: User): Promise<UserResponse> => {
   // TODO: Task 1 - Implement the saveUser function. Refer to other service files for guidance.
   // This function should save the user to the database and return the saved user object without the password.
-  if(!user || !user.username || !user.password) {
-    return { error: 'Invalid user data'};
-  }
-
-  if(user.username.trim() === '' || user.password.trim() === '') {
-    return {error: 'Username and password cannot be empty'};
-  }
-
   try {
     const savedUser = await UserModel.create(user);
     const { password, ...safeUser } = savedUser.toObject();
@@ -36,9 +28,6 @@ export const saveUser = async (user: User): Promise<UserResponse> => {
  */
 export const getUserByUsername = async (username: string): Promise<UserResponse> => {
   // TODO: Task 1 - Implement the getUserByUsername function. Refer to other service files for guidance.
-  if(!username || username.trim() === '') {
-    return { error: 'Username is required'};
-  }
   try {
     const user = await UserModel.findOne({ username }).exec();
     if(!user) {
@@ -61,16 +50,11 @@ export const getUserByUsername = async (username: string): Promise<UserResponse>
 export const loginUser = async (loginCredentials: UserCredentials): Promise<UserResponse> => {
   // TODO: Task 1 - Implement the loginUser function. Refer to other service files for guidance.
   try {
-    const { username, password } = loginCredentials;
-    if (!username || !password || username.trim() === '' || username.trim() === '') {
-      return { error: 'Username and password are required' };
-    }
-
-    const user = await UserModel.findOne({ username, password }).exec();
+    const user = await UserModel.findOne(loginCredentials).exec();
     if (!user) {
       return { error: 'Invalid credentials / user not found' };
     }
-    const { password: _, ...safeUser} = user.toObject();
+    const { password, ...safeUser} = user.toObject();
     return safeUser as UserResponse;
   } catch (error) {
     return { error: 'Error logging in user' };
@@ -87,12 +71,8 @@ export const loginUser = async (loginCredentials: UserCredentials): Promise<User
  */
 export const deleteUserByUsername = async (username: string): Promise<UserResponse> => {
   // TODO: Task 1 - Implement the deleteUserByUsername function. Refer to other service files for guidance.
-  if(!username || username.trim() === '') {
-    return { error: 'Username is required'};
-  }
-
   try {
-    const deletedUser = await UserModel.findOneAndDelete({ username}).exec();
+    const deletedUser = await UserModel.findOneAndDelete({ username }).exec();
     if(!deletedUser) {
       return { error: 'User not found' };
     }

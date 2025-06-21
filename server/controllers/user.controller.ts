@@ -16,7 +16,15 @@ const userController = () => {
    * @param req The incoming request containing user data.
    * @returns `true` if the body contains valid user fields; otherwise, `false`.
    */
-  const isUserBodyValid = (req: UserRequest): boolean => false;
+  const isUserBodyValid = (req: UserRequest): boolean => {
+    const { username, password } = req.body;
+
+    // Check if username and password are provided and are non-empty strings
+    return (
+      typeof username === 'string' && username.trim().length > 0 &&
+      typeof password === 'string' && password.trim().length > 0
+    );
+  };
   // TODO: Task 1 - Implement the isUserBodyValid function
 
   /**
@@ -27,7 +35,37 @@ const userController = () => {
    */
   const createUser = async (req: UserRequest, res: Response): Promise<void> => {
     // TODO: Task 1 - Implement the createUser function
-    res.status(501).send('Not implemented');
+    if (!isUserBodyValid(req)) {
+      res.status(400).send("Invalid User Data");
+      return;
+    } 
+    const { username, password } = req.body;
+
+    const newUserData: User = {
+      username: username.trim(),
+      password: password,
+      dateJoined: new Date(),
+    };
+
+    try {
+      const existingUser = await getUserByUsername(newUserData.username);
+
+      if(!('error' in existingUser)) {
+        res.status(409).send('User already exists');
+        return;
+      }
+
+      const createdUser = await saveUser(newUserData);
+      if('error' in createdUser) {
+        res.status(500).send(createdUser.error);
+        return;
+      }
+      
+      res.status(201).send(createdUser);
+    } catch (error) {
+      res.status(500).send('Error creating user');
+    }
+    // res.status(501).send('Not implemented');
   };
 
   /**
@@ -38,7 +76,25 @@ const userController = () => {
    */
   const userLogin = async (req: UserRequest, res: Response): Promise<void> => {
     // TODO: Task 1 - Implement the userLogin function
-    res.status(501).send('Not implemented');
+    if (!isUserBodyValid(req)) {
+      res.status(400).send('Invalid User Data');
+      return;
+    };
+
+    const username = req.body.username.trim();
+    const password = req.body.password;
+
+    try {
+      const user = await loginUser({ username, password });
+      if ('error' in user) {
+        res.status(401).send(user.error);
+        return;
+      }
+      res.status(200).json(user);
+    } catch (error) {
+      res.status(500).send('Error logging in user');
+    }
+    // res.status(501).send('Not implemented');
   };
 
   /**
@@ -49,7 +105,24 @@ const userController = () => {
    */
   const getUser = async (req: UserByUsernameRequest, res: Response): Promise<void> => {
     // TODO: Task 1 - Implement the getUser function
-    res.status(501).send('Not implemented');
+    const username = req.params.username?.trim();
+
+    if(typeof username !== 'string' || username.trim().length === 0) {
+      res.status(400).send('Username is required');
+      return;
+    }
+
+    try {
+      const user = await getUserByUsername(username);
+      if('error' in user) {
+        res.status(404).send(user.error);
+        return;
+      }
+      res.status(200).json(user);
+    } catch (error) {
+      res.status(500).send('Error fetching user data');
+    }
+    // res.status(501).send('Not implemented');
   };
 
   /**
@@ -60,7 +133,24 @@ const userController = () => {
    */
   const deleteUser = async (req: UserByUsernameRequest, res: Response): Promise<void> => {
     // TODO: Task 1 - Implement the deleteUser function
-    res.status(501).send('Not implemented');
+    const username = req.params.username?.trim();
+
+    if(!username || username.trim().length === 0) {
+      res.status(400).send('Username is required');
+      return;
+    }
+
+    try {
+      const deletedUser = await deleteUserByUsername(username);
+      if('error' in deletedUser) {
+        res.status(404).send(deletedUser.error);
+        return;
+      }
+      res.status(200).json(deletedUser);
+    } catch (error) {
+      res.status(500).send('Error deleting user');
+    }
+    // res.status(501).send('Not implemented');
   };
 
   /**
@@ -71,7 +161,26 @@ const userController = () => {
    */
   const resetPassword = async (req: UserRequest, res: Response): Promise<void> => {
     // TODO: Task 1 - Implement the resetPassword function
-    res.status(501).send('Not implemented');
+    const username = req.params.username?.trim();
+    const newPassword = req.body?.password;
+
+    if(!username || !newPassword || username.length === 0 || newPassword.trim().length === 0) {
+      res.status(400).send('Username and password are required');
+      return;
+    }
+
+    try {
+      const updatedUser = await updateUser(username, { password: newPassword });
+      if('error' in updatedUser) {
+        res.status(404).send(updatedUser.error);
+        return;
+      }
+
+      res.status(200).json(updateUser);
+    } catch (error) {
+      res.status(500).send('Error resetting password');
+    }
+    // res.status(501).send('Not implemented');
   };
 
   // Define routes for the user-related operations.
