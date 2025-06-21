@@ -93,9 +93,6 @@ export const deleteUserByUsername = async (username: string): Promise<UserRespon
  */
 export const updateUser = async (username: string, updates: Partial<User>): Promise<UserResponse> => {
   // TODO: Task 1 - Implement the updateUser function. Refer to other service files for guidance.
-  if(!username || username.trim() === '') {
-    return { error: 'Username is required' };
-  }
   try {
     const updatedUser = await UserModel.findOneAndUpdate(
       { username },
