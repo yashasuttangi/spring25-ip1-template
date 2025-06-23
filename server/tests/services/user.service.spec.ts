@@ -1,3 +1,4 @@
+import { MongoServerError } from 'mongodb';
 import UserModel from '../../models/users.model';
 import {
   deleteUserByUsername,
@@ -39,17 +40,17 @@ describe('User model', () => {
       expect(result).toEqual({ error: 'Error saving user' });
     });
 
-    it('should return error when user already exists', async() => {
+    it('should return error when user already exists', async () => {
       const duplicateKeyError = Object.assign(new Error('E11000 duplicate key error'), {
         code: 11000,
-        keyPattern: { username: 1 } 
+        keyPattern: { username: 1 },
       });
+      Object.setPrototypeOf(duplicateKeyError, MongoServerError.prototype);
 
       jest.spyOn(UserModel, 'create').mockRejectedValueOnce(duplicateKeyError);
 
       const result = await saveUser(user);
-      expect(result).toEqual({ error: 'Username already exists' }); 
-
+      expect(result).toEqual({ error: 'Username already exists' });
     });
   });
 

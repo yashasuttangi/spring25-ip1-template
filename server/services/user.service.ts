@@ -1,3 +1,4 @@
+import { MongoServerError } from 'mongodb';
 import UserModel from '../models/users.model';
 import { User, UserCredentials, UserResponse } from '../types/types';
 
@@ -15,12 +16,12 @@ export const saveUser = async (user: User): Promise<UserResponse> => {
     const safeUser: UserResponse = {
       _id: savedUser._id,
       username: savedUser.username,
-      dateJoined: savedUser.dateJoined
-    }
+      dateJoined: savedUser.dateJoined,
+    };
     return safeUser as UserResponse;
-  } catch (error: any) {
-    if(error.code === 11000 && error.keyPattern?.username) {
-      return { error: 'Username already exists' }
+  } catch (error: unknown) {
+    if (error instanceof MongoServerError && error.code === 11000 && error.keyPattern?.username) {
+      return { error: 'Username already exists' };
     }
     return { error: 'Error saving user' };
   }

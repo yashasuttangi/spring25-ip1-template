@@ -39,7 +39,7 @@ describe('Test userController', () => {
 
       saveUserSpy.mockResolvedValueOnce(mockSafeUser);
 
-      // ADDING A SPY AS I HAVE ADDED A CHECK TO 
+      // ADDING A SPY AS I HAVE ADDED A CHECK TO
 
       const response = await supertest(app).post('/user/signup').send(mockReqBody);
 

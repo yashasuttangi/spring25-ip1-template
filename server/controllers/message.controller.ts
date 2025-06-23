@@ -17,7 +17,7 @@ const messageController = (socket: FakeSOSocket) => {
   const isMessageValid = (message: Message): boolean => {
     // TODO: Task 2 - Implement the isMessageValid function
     const date = new Date(message.msgDateTime);
-    return  (
+    return (
       message &&
       typeof message.msg === 'string' &&
       message.msg.trim() !== '' &&

@@ -37,7 +37,6 @@ const userController = () => {
    */
   const createUser = async (req: UserRequest, res: Response): Promise<void> => {
     // TODO: Task 1 - Implement the createUser function
-    console.log('Request', req.body)
     if (!isUserBodyValid(req)) {
       res.status(400).send('Invalid user body');
       return;

@@ -53,7 +53,13 @@ describe('POST /addMessage', () => {
 
     const response = await supertest(app)
       .post('/messaging/addMessage')
-      .send({ messageToAdd: { msg: 'Hello', msgFrom: 'User1', msgDateTime: new Date('2024-06-04').toISOString() } });
+      .send({
+        messageToAdd: {
+          msg: 'Hello',
+          msgFrom: 'User1',
+          msgDateTime: new Date('2024-06-04').toISOString(),
+        },
+      });
 
     expect(response.status).toBe(500);
     expect(response.text).toBe('Error saving message');
