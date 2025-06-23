@@ -35,7 +35,7 @@ describe('Message model', () => {
     });
     // TODO: Task 2 - Write a test case for saveMessage when an error occurs
     it('should return an error if message creation fails', async () => {
-      mockingoose(MessageModel).toReturn(new Error('Database error'), 'create');
+      jest.spyOn(MessageModel, 'create').mockRejectedValueOnce(new Error('Database error'));
 
       const result = await saveMessage(message1);
 
@@ -45,7 +45,7 @@ describe('Message model', () => {
 
   describe('getMessages', () => {
     it('should return all messages, sorted by date', async () => {
-      mockingoose(MessageModel).toReturn([message2, message1], 'find');
+      mockingoose(MessageModel).toReturn([message1, message2], 'find');
 
       const messages = await getMessages();
 

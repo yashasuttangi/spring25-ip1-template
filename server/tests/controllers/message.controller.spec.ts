@@ -49,11 +49,11 @@ describe('POST /addMessage', () => {
   });
 
   it('should return 500 if saving message fails', async () => {
-    saveMessageSpy.mockResolvedValue({ error: 'Error saving message' });
+    saveMessageSpy.mockRejectedValueOnce(new Error('Database failure'));
 
     const response = await supertest(app)
       .post('/messaging/addMessage')
-      .send({ messageToAdd: { msg: 'Hello', msgFrom: 'User1', msgDateTime: new Date() } });
+      .send({ messageToAdd: { msg: 'Hello', msgFrom: 'User1', msgDateTime: new Date('2024-06-04').toISOString() } });
 
     expect(response.status).toBe(500);
     expect(response.text).toBe('Error saving message');

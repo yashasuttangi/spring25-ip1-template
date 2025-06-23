@@ -14,15 +14,18 @@ const messageController = (socket: FakeSOSocket) => {
    *
    * @returns `true` if the message is valid, otherwise `false`.
    */
-  const isMessageValid = (message: Message): boolean =>
+  const isMessageValid = (message: Message): boolean => {
     // TODO: Task 2 - Implement the isMessageValid function
-    message &&
-    typeof message.msg === 'string' &&
-    message.msg.trim() !== '' &&
-    typeof message.msgFrom === 'string' &&
-    message.msgFrom.trim() !== '' &&
-    message.msgDateTime instanceof Date &&
-    !Number.isNaN(message.msgDateTime.getTime());
+    const date = new Date(message.msgDateTime);
+    return  (
+      message &&
+      typeof message.msg === 'string' &&
+      message.msg.trim() !== '' &&
+      typeof message.msgFrom === 'string' &&
+      message.msgFrom.trim() !== '' &&
+      !Number.isNaN(date.getTime())
+    );
+  };
   // Moving this block below as isMessageValid was being used before defined - to resolve the lint error
   /**
    * Checks if the provided message request contains the required fields.
@@ -49,7 +52,7 @@ const messageController = (socket: FakeSOSocket) => {
      * This emits a message update event to the client. When should you emit this event? You can find the socket event definition in the server/types/socket.d.ts file.
      */
     if (!isRequestValid(req)) {
-      res.status(400).send('Invalid message data');
+      res.status(400).send('Invalid request');
       return;
     }
 
@@ -64,7 +67,7 @@ const messageController = (socket: FakeSOSocket) => {
 
       socket.emit('messageUpdate', { msg: msgFromDb });
 
-      res.status(201).json(msgFromDb);
+      res.status(200).json(msgFromDb);
     } catch (error) {
       res.status(500).send('Error saving message');
     }
