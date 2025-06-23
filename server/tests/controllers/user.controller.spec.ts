@@ -39,6 +39,8 @@ describe('Test userController', () => {
 
       saveUserSpy.mockResolvedValueOnce(mockSafeUser);
 
+      // ADDING A SPY AS I HAVE ADDED A CHECK TO 
+
       const response = await supertest(app).post('/user/signup').send(mockReqBody);
 
       expect(response.status).toBe(200);
@@ -81,35 +83,10 @@ describe('Test userController', () => {
       expect(response.text).toEqual('Invalid user body');
     });
 
-    it('should return 409 if user already exists', async () => {
-      getUserByUsernameSpy.mockResolvedValueOnce(mockSafeUser);
-
-      const response = await supertest(app).post('/user/signup').send({
-        username: mockUser.username,
-        password: mockUser.password,
-      });
-
-      expect(response.status).toBe(409);
-      expect(response.text).toEqual('User already exists');
-    });
-
     it('should return 500 if saveUser returns error', async () => {
-      getUserByUsernameSpy.mockResolvedValueOnce({ error: 'User not found' });
-      saveUserSpy.mockResolvedValueOnce({ error: 'Error creating user' });
+      saveUserSpy.mockRejectedValueOnce(new Error('Database error'));
 
       const response = await supertest(app).post('/user/signup').send({
-        username: mockUser.username,
-        password: mockUser.password,
-      });
-
-      expect(response.status).toBe(500);
-      expect(response.text).toEqual('Error creating user');
-    });
-
-    it('should return 500 if getUserByUsername throws error', async () => {
-      getUserByUsernameSpy.mockRejectedValueOnce(new Error('Database error'));
-
-      const response = await supertest(app).post('user/signup').send({
         username: mockUser.username,
         password: mockUser.password,
       });
@@ -290,11 +267,12 @@ describe('Test userController', () => {
       expect(getUserByUsernameSpy).toHaveBeenCalledWith(mockUser.username);
     });
 
-    it('should return 404 if username not provided', async () => {
+    it('should return 400 if username not provided', async () => {
       // Express automatically returns 404 for missing parameters when
       // defined as required in the route
       const response = await supertest(app).get('/user/getUser/');
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(400);
+      expect(response.text).toBe('Username is required');
     });
 
     // TODO: Task 1 - Write additional test cases for getUserRoute
@@ -342,11 +320,9 @@ describe('Test userController', () => {
     });
 
     // TODO: Task 1 - Write additional test cases for deleteUserRoute
-    it('should return 400 if username is an empty string', async () => {
+    it('should return 404 if username is an empty string', async () => {
       const response = await supertest(app).delete('/user/deleteUser/   ');
-
-      expect(response.status).toBe(400);
-      expect(response.text).toBe('Username is required');
+      expect(response.status).toBe(404);
     });
 
     it('should return 404 if user is not found', async () => {

@@ -37,6 +37,7 @@ const userController = () => {
    */
   const createUser = async (req: UserRequest, res: Response): Promise<void> => {
     // TODO: Task 1 - Implement the createUser function
+    console.log('Request', req.body)
     if (!isUserBodyValid(req)) {
       res.status(400).send('Invalid user body');
       return;
@@ -50,20 +51,13 @@ const userController = () => {
     };
 
     try {
-      const existingUser = await getUserByUsername(newUserData.username);
-
-      if (!('error' in existingUser)) {
-        res.status(409).send('User already exists');
-        return;
-      }
-
       const createdUser = await saveUser(newUserData);
       if ('error' in createdUser) {
         res.status(500).send(createdUser.error);
         return;
       }
 
-      res.status(201).send(createdUser);
+      res.status(200).json(createdUser);
     } catch (error) {
       res.status(500).send('Error creating user');
     }
@@ -110,7 +104,7 @@ const userController = () => {
     // TODO: Task 1 - Implement the getUser function
     const username = req.params.username?.trim();
 
-    if (typeof username !== 'string' || username.trim().length === 0) {
+    if (typeof username !== 'string' || username.length === 0) {
       res.status(400).send('Username is required');
       return;
     }
@@ -138,7 +132,7 @@ const userController = () => {
     // TODO: Task 1 - Implement the deleteUser function
     const username = req.params.username?.trim();
 
-    if (!username || username.trim().length === 0) {
+    if (!username || username.length === 0) {
       res.status(400).send('Username is required');
       return;
     }
@@ -164,11 +158,11 @@ const userController = () => {
    */
   const resetPassword = async (req: UserRequest, res: Response): Promise<void> => {
     // TODO: Task 1 - Implement the resetPassword function
-    const username = req.params.username?.trim();
+    const username = req.body.username?.trim();
     const newPassword = req.body?.password;
 
     if (!username || !newPassword || username.length === 0 || newPassword.trim().length === 0) {
-      res.status(400).send('Username and password are required');
+      res.status(400).send('Invalid user body');
       return;
     }
 
@@ -179,7 +173,7 @@ const userController = () => {
         return;
       }
 
-      res.status(200).json(updateUser);
+      res.status(200).json(updatedUser);
     } catch (error) {
       res.status(500).send('Error resetting password');
     }
@@ -190,7 +184,7 @@ const userController = () => {
   // TODO: Task 1 - Add appropriate HTTP verbs and endpoints to the router
   router.post('/signup', createUser);
   router.post('/login', userLogin);
-  router.get('/getUser/:username', getUser);
+  router.get('/getUser/:username?', getUser);
   router.delete('/deleteUser/:username', deleteUser);
   router.patch('/resetPassword', resetPassword);
 
