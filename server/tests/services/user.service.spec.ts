@@ -38,6 +38,19 @@ describe('User model', () => {
       const result = await saveUser(user);
       expect(result).toEqual({ error: 'Error saving user' });
     });
+
+    it('should return error when user already exists', async() => {
+      const duplicateKeyError = Object.assign(new Error('E11000 duplicate key error'), {
+        code: 11000,
+        keyPattern: { username: 1 } 
+      });
+
+      jest.spyOn(UserModel, 'create').mockRejectedValueOnce(duplicateKeyError);
+
+      const result = await saveUser(user);
+      expect(result).toEqual({ error: 'Username already exists' }); 
+
+    });
   });
 
   describe('getUserByUsername', () => {
